@@ -29,8 +29,8 @@ class CCServer:
         @param credentials, dictionary - auth_usr and auth_pwd
         @return boolean, True if authentication is successfull
         """
-        auth_usr = credentials['auth_usr']  == self._admin['auth_usr']
-        auth_pwd = credentials['admin_pwd'] == self._admin['admin_pwd']
+        auth_usr = credentials['auth_usr']  == self._admin['admin_usr']
+        auth_pwd = credentials['auth_pwd']  == self._admin['admin_pwd']
         return auth_usr and auth_pwd
         
     
