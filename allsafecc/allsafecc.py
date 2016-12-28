@@ -25,12 +25,19 @@ debug = True
 
 # ROUTING SERVER - settings retrieval 
 @app.route('/settings', methods=['GET'])
+def getSettings():
+    settings = CC.retrieveSettings()
+    return settings # as a string
 
 # ROUTING SERVER - update settings 
 @app.route('/update', methods=['POST'])
+def updateSettings():
+    return "hello settings post"
 
 # ROUTING SERVER - logs visualization (debug purposes)
 @app.route('/logs', methods=['GET'])
+def getLog():
+    return "hello log"
 
 if __name__ == "__main__": 
     app.run()

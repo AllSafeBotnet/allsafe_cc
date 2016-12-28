@@ -19,7 +19,7 @@ class CCServer:
         @param admin, dictionary - admin_usr, admin_pwd for auth
         """
         self._settings_path = settings_path
-        self._admin     = admin
+        self._admin         = admin
     
     def authenticate(self, credentials):
         """
@@ -43,13 +43,18 @@ class CCServer:
         # adding timestamp to settings
         settings = dict()
         settings['timestamp'] = time()
+
         # enabling botnet
-        settings['enable'] = enable
+        if enable: 
+            settings['enable'] = 1
+        else:
+            settings['enable'] = 0
+            
         # adding updated settings
         settings['settings'] = botnet_settings
 
         # preparing json
-        settingsJSON = json.dumps(settings, sort_keys=False, indent=4)
+        settingsJSON = json.dumps(settings)
 
         # writing the new json file
         settingsFile = open(self._settings_path, 'w')
@@ -68,5 +73,5 @@ class CCServer:
         with open(self._settings_path) as settingsJSON:
             settings = json.load(settingsJSON)
             settingsJSON.close()
-            return settings
+            return json.dumps(settings)
 
