@@ -4,7 +4,7 @@ from CCServer import CCServer
 
 import logging
 from logging.handlers import RotatingFileHandler
-from time import time
+from datetime import datetime 
 
 app = Flask(__name__)
 
@@ -25,6 +25,7 @@ credentialsD = {
 # creating CC instance
 CC = CCServer(settingsPath, credentialsD)
 
+
 # debug level
 debug = True
 
@@ -33,25 +34,33 @@ debug = True
 def getSettings():
     # retrieving settings
     settings = CC.retrieveSettings()
-    # logging 
-    app.logger.warning("[{0}] => reached by {1} : configuration update required".format(round(time()), request.remote_addr))
+    # logging the request
+    app.logger.info("[{0}] => reached by {1} : configuration update required".format(str(datetime.utcnow()), request.remote_addr))
 
     return settings # as a string
+
 
 # ROUTING SERVER - update settings 
 @app.route('/update', methods=['POST'])
 def updateSettings():
     return "hello settings post"
 
+
 # ROUTING SERVER - logs visualization (debug purposes)
 @app.route('/logs', methods=['GET'])
 def getLog():
     return "hello log"
 
+
+
+
 if __name__ == "__main__": 
-    # adding log handler provided by werkzeug lib
+    # adding log handler provided by werkzeug lib ... 
     handler = RotatingFileHandler('./data/ccserver.log', maxBytes=10000, backupCount=1)
+    # ... but first we need to set log level! 
     handler.setLevel(logging.INFO)
+    logging.basicConfig(level=logging.INFO)
     app.logger.addHandler(handler)
+
     # running server
     app.run()
