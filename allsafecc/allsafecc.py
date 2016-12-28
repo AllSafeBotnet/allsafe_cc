@@ -34,7 +34,7 @@ def getSettings():
     # retrieving settings
     settings = CC.retrieveSettings()
     # logging 
-    app.logger.warning("[{0}] => reached by {1} : configuration update required".format(time(), request.remote_addr))
+    app.logger.warning("[{0}] => reached by {1} : configuration update required".format(round(time()), request.remote_addr))
 
     return settings # as a string
 
