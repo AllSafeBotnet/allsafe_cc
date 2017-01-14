@@ -79,11 +79,22 @@ def validation():
 # ROUTING SERVER - logs visualization (debug purposes)
 @app.route('/logs', methods=['GET'])
 def getLog():
-    # simply returning log lines from logging file 
+    # simply returning log lines from logging file
+    # splitting usage info 
+    usageinfo = "" 
     logresult = "<h1> LOG / {0} </h1> </br>".format(str(datetime.utcnow()))
+    
     with open(logPath) as logFile:
         for entry in logFile.readlines():
-            logresult += entry + "</br>"
+            if "usage" in entry:
+                usageinfo += entry + "</br>"
+            else:
+                logresult += entry + "</br>"
+    
+    if len(usageinfo) != 0:
+        logresult += "</br></br>"
+        logresult += "<h2> USAGE STATS </h2> </br>
+        logresult += usageinfo
 
     return logresult, 200
 
