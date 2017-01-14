@@ -40,6 +40,9 @@ def getSettings():
 
     return settings, 200
 
+@app.route('/')
+def ciao():
+    return 'Hello World'
 
 
 # ROUTING SERVER - update settings 
@@ -63,6 +66,14 @@ def updateSettings():
         app.logger.info("[{0}] => reached by {1} / {2}: forbidden!".format(str(datetime.utcnow()), request.remote_addr, auth.username))
         return "Forbidden!", 403
 
+# ROUTING SERVER - check credential
+@app.route('/test', methods=['POST'])
+def validation():
+    auth = request.authorization
+    if CC.authenticate({ 'auth_usr'  : auth.username, 'auth_pwd' : auth.password }):
+        return "OK", 200
+    else:
+        return "Forbidden!", 403
 
 
 # ROUTING SERVER - logs visualization (debug purposes)
