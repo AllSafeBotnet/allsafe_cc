@@ -1,6 +1,10 @@
 from flask import Flask
 from flask import request
+from flask import render_template
+from flask import session
+from flask import abort
 from CCServer import CCServer
+from os import urandom
 
 import logging
 from logging.handlers import RotatingFileHandler
@@ -28,6 +32,8 @@ credentialsD = {
 # creating CC instance
 CC = CCServer(settingsPath, credentialsD)
 
+app.secret_key = "\x9b\x17\xc4\xbc\x11\xed\xdcf\xa1\x9aV\xde\xafR\x93h\x81(\x8f|\xbeE\xd5\x08"
+
 
 
 # ROUTING SERVER - settings retrieval 
@@ -40,10 +46,20 @@ def getSettings():
 
     return settings, 200
 
-@app.route('/')
-def ciao():
-    return 'Hello World'
+@app.route('/', methods=['GET','POST'])
+def mainAccess():
+    if (request.method == 'POST'):
+        return login(request.form['u'],request.form['p'])
+    else:
+        return render_template("loginpage.html")
 
+def login(username,password):
+    if CC.authenticate({'auth_usr': username, 'auth_pwd': password}):
+        session['username'] = username
+        session['password'] = password
+        return render_template("controlpage.html")
+    else:
+        return abort(403)
 
 # ROUTING SERVER - update settings 
 @app.route('/update', methods=['POST'])
@@ -66,15 +82,6 @@ def updateSettings():
         app.logger.info("[{0}] => reached by {1} / {2}: forbidden!".format(str(datetime.utcnow()), request.remote_addr, auth.username))
         return "Forbidden!", 403
 
-# ROUTING SERVER - check credential
-@app.route('/test', methods=['POST'])
-def validation():
-    auth = request.authorization
-    if CC.authenticate({ 'auth_usr'  : auth.username, 'auth_pwd' : auth.password }):
-        return "OK", 200
-    else:
-        return "Forbidden!", 403
-
 
 # ROUTING SERVER - logs visualization (debug purposes)
 @app.route('/logs', methods=['GET'])
@@ -93,7 +100,7 @@ def getLog():
     
     if len(usageinfo) != 0:
         logresult += "</br></br>"
-        logresult += "<h2> USAGE STATS </h2> </br>
+        logresult += "<h2> USAGE STATS </h2> </br>"
         logresult += usageinfo
 
     return logresult, 200
