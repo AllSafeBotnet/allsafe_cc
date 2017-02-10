@@ -100,9 +100,13 @@ def prepareConfigFile(params, where='./data/current_attack.json'):
         for elem in params['target']:
             # Creation of the locaTargetSchema based upon the TargetSchema
             localTargetSchema = dict()
-            localTargetSchema['period'] = int(elem['period']) if 'period' in elem else 1
-            localTargetSchema['max_count'] = int(elem['max_count']) if 'max_count' in elem else 15
             localTargetSchema['sessions'] = int(elem['sessions']) if 'sessions' in elem else 1
+            localTargetSchema['max_count'] = int(elem['max_count']) if 'max_count' in elem else 15
+
+            if elem['min_period'] == "" or elem['max_period'] == "":
+                localTargetSchema['period'] = ""
+            else:
+                localTargetSchema['period'] = elem['min_period'] + "-" + elem['max_period']
 
             # Creation of the actionCondition dictionary
             actionConditions = OrderedDict()
