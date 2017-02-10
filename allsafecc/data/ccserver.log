@@ -1,1 +1,42 @@
 [2017-02-10 13:50:45.042284] => reached by 127.0.0.1 / fsociety: settings override!
+Exception on /update [POST]
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1988, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1641, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1544, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "/usr/local/lib/python3.5/dist-packages/flask/_compat.py", line 33, in reraise
+    raise value
+  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1639, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1625, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "/home/federico/allsafe_cc/allsafecc/__init__.py", line 72, in updateSettings
+    CC.updateSettings(prepareConfigFile(request.json['settings']))
+  File "/home/federico/allsafe_cc/allsafecc/__init__.py", line 91, in prepareConfigFile
+    localRootSchema['last_modified'] = round(time())
+NameError: name 'time' is not defined
+Exception on /update [POST]
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1988, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1641, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1544, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "/usr/local/lib/python3.5/dist-packages/flask/_compat.py", line 33, in reraise
+    raise value
+  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1639, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1625, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "/home/federico/allsafe_cc/allsafecc/__init__.py", line 73, in updateSettings
+    CC.updateSettings(prepareConfigFile(request.json['settings']))
+  File "/home/federico/allsafe_cc/allsafecc/__init__.py", line 107, in prepareConfigFile
+    actionConditions = OrderedDict()
+NameError: name 'OrderedDict' is not defined
+[2017-02-10 14:28:13.702221] => reached by 127.0.0.1 / fsociety: settings override!
+[2017-02-10 14:29:23.942173] => reached by 127.0.0.1 / fsociety: settings override!
+[2017-02-10 14:31:42.355257] => reached by 127.0.0.1 / fsociety: settings override!

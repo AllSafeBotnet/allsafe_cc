@@ -1,1 +1,32 @@
-{"enable": 1, "settings": {"log_file": "log.txt", "target": [{"method": "GET", "period": "1", "url": "http://", "hour_end": "23", "resources": "/", "AMPM": "AMPM", "timeout": "0.5", "hour_start": "1", "encoding": "utf-8", "max_count": "1000"}], "user_agent": "PROVETTA"}, "timestamp": 1486734645}
+{
+    "log_file": "./data/log.txt",
+    "user-agent_b": "PROVETTA",
+    "cc_server": "",
+    "last_modified": 1486737102,
+    "targets": [
+        {
+            "action_conditions": {
+                "AM": 1,
+                "PM": 1,
+                "attack_time": "1-23",
+                "avoid_month": [],
+                "avoid_week": []
+            },
+            "max_count": 1000,
+            "period": 1,
+            "sessions": 1,
+            "request_params": {
+                "encoding": "utf-8",
+                "method": "GET",
+                "url": "http://",
+                "proxy_server": {
+                    "https": "",
+                    "http": ""
+                },
+                "resources": [
+                    "/ciao"
+                ]
+            }
+        }
+    ]
+}

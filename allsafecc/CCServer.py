@@ -41,17 +41,7 @@ class CCServer:
         @param botnet_settings, dictionary
         """
         # adding timestamp to settings
-        settings = dict()
-        settings['timestamp'] = round(time())
-
-        # enabling botnet
-        if enable: 
-            settings['enable'] = 1
-        else:
-            settings['enable'] = 0
-            
-        # adding updated settings
-        settings['settings'] = botnet_settings
+        settings = botnet_settings
 
         # preparing json
         settingsJSON = json.dumps(settings, indent=4)
