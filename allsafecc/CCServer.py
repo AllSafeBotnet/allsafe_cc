@@ -54,7 +54,7 @@ class CCServer:
         settings['settings'] = botnet_settings
 
         # preparing json
-        settingsJSON = json.dumps(settings)
+        settingsJSON = json.dumps(settings, indent=4)
 
         # writing the new json file
         settingsFile = open(self._settings_path, 'w')
