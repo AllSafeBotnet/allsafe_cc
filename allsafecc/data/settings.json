@@ -1,10 +1,21 @@
 {
-    "log_file": "./data/log.txt",
-    "user-agent_b": "PROVETTA",
-    "cc_server": "",
-    "last_modified": 1486737102,
     "targets": [
         {
+            "max_count": 3,
+            "request_params": {
+                "method": "GET",
+                "user-agent": "CUSTOM_UA v.2",
+                "url": "http://www.ilmessaggero.it",
+                "encoding": "utf-8",
+                "resources": [
+                    "/abruzzo"
+                ],
+                "proxy_server": {
+                    "https": "",
+                    "http": ""
+                }
+            },
+            "sessions": 1,
             "action_conditions": {
                 "AM": 1,
                 "PM": 1,
@@ -12,21 +23,11 @@
                 "avoid_month": [],
                 "avoid_week": []
             },
-            "max_count": 1000,
-            "period": 1,
-            "sessions": 1,
-            "request_params": {
-                "encoding": "utf-8",
-                "method": "GET",
-                "url": "http://",
-                "proxy_server": {
-                    "https": "",
-                    "http": ""
-                },
-                "resources": [
-                    "/ciao"
-                ]
-            }
+            "period": "1-5"
         }
-    ]
+    ],
+    "log_file": "data.txt",
+    "user-agent_b": "CUSTOM_UA v.2",
+    "last_modified": 1486989547,
+    "cc_server": ""
 }

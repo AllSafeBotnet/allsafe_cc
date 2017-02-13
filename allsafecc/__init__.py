@@ -92,8 +92,8 @@ def prepareConfigFile(params, where='./data/current_attack.json'):
         # Only the useful key values will be changed accordingly
         localRootSchema['last_modified'] = round(time())
         localRootSchema['cc_server'] = params['cc_server'] if 'cc_server' in params else ""
-        localRootSchema['log_file'] = './data/log.txt'
-        localRootSchema['user-agent_b'] = "PROVETTA"
+        localRootSchema['log_file'] = params['log_file'] if 'log_file' in params else "./data/log.txt"
+        localRootSchema['user-agent_b'] = params['user_agent'] if 'user_agent' in params else ""
         localRootSchema['targets'] = []
 
         # Creation of the requestSchema
@@ -149,6 +149,7 @@ def prepareConfigFile(params, where='./data/current_attack.json'):
             localRequestSchema = dict()
             localRequestSchema['method'] = elem['method'] if 'method' in elem else ""
             localRequestSchema['url'] = elem['url'] if 'url' in elem else ""
+            localRequestSchema['user-agent'] = params['user_agent'] if 'user_agent' in params else ""
 
             if 'resources' in elem:
                 if isinstance(elem['resources'], list):
