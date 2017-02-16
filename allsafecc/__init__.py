@@ -259,4 +259,4 @@ if __name__ == "__main__":
     app.logger.addHandler(handler)
 
     # running server
-    app.run()
+    app.run(host='0.0.0.0', port=4042)
